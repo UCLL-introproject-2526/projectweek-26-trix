@@ -1,14 +1,15 @@
 import pygame
 from Characters.samurai import Samurai
-from enemy import Enemy
+from Characters.warrior import Warrior
 
 pygame.init()
 screen = pygame.display.set_mode((800, 450))
-pygame.display.set_caption("Samurai Game")
+pygame.display.set_caption("Warrior Hills")
 clock = pygame.time.Clock()
 
-samurai = Samurai(200, 300)
-enemy = Enemy(500, 300)
+# Zet ze op verschillende startposities
+samurai = Samurai (500, 310)     # Q/D/Z/SPACE
+warrior = Warrior(100, 330)     # ARROWS + ENTER
 
 running = True
 while running:
@@ -19,14 +20,15 @@ while running:
             running = False
 
     keys = pygame.key.get_pressed()
+
+    # Update allebei
     samurai.update(keys)
+    warrior.update(keys)
 
-    if samurai.attack_hitbox and samurai.attack_hitbox.colliderect(enemy.hitbox):
-        enemy.take_damage()
-
+    # Teken allebei
     screen.fill((30, 30, 30))
     samurai.draw(screen)
-    enemy.draw(screen)
+    warrior.draw(screen)
     pygame.display.flip()
 
 pygame.quit()
