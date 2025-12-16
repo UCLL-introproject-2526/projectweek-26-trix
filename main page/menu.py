@@ -6,6 +6,7 @@ import os
 # kleuren
 WHITE = (255, 255, 255)
 GREY = (225, 225, 225)
+DARK_BLUE = (149, 219, 242)
 LIGHT_BLUE = (71, 192, 232)
 TITLE_COLOR = (255, 255, 255)
 
@@ -54,6 +55,8 @@ class UIElement(Sprite):
             # Background color changes on hover
             bg_color = GREY if self.hovered else WHITE
             pygame.draw.rect(surface, bg_color, self.box_rect)
+            # Draw black border around the button
+            pygame.draw.rect(surface, DARK_BLUE, self.box_rect, width=3)
         # Draw text
         surface.blit(self.text_image, self.rect)
 
