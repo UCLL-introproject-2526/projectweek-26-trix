@@ -1,4 +1,5 @@
 import pygame
+import os
 from animation import Animation
 from utility import load_images
 
@@ -39,6 +40,11 @@ class Samurai:
         self.attack_done = False
         self.attack_frame = 2
 
+        # ✅ health + damage control
+        self.max_hp = 100
+        self.hp = 100
+        self.damage_applied = False  # voorkomt meerdere hits per attack
+
         # input edge detection
         self.prev_space = False
         self.prev_z = False
@@ -51,14 +57,46 @@ class Samurai:
         self.on_ground = True
         self.ground_y = y
 
+        # health
+        self.max_hp = 100
+        self.hp = 100
+        self.dead_called = False
+
+        # load healthbar images
+        self.healthbar_images = {}
+        try:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            project_dir = os.path.dirname(base_dir)
+            images_dir = os.path.join(project_dir, "healthbar")
+            for val in range(100, -10, -10):
+                fname = os.path.join(images_dir, f"healthbar_{val}.png")
+                if os.path.exists(fname):
+                    img = pygame.image.load(fname).convert_alpha()
+                    self.healthbar_images[val] = img
+        except Exception:
+            self.healthbar_images = {}
+
     def _scale_image(self, img):
         w = int(img.get_width() * SCALE)
         h = int(img.get_height() * SCALE)
         return pygame.transform.scale(img, (w, h))
 
+    # ✅ damage function
+    def take_damage(self, amount):
+        self.hp = max(0, self.hp - amount)
+        # call game over when hp reaches 0 (once)
+        if self.hp == 0 and not self.dead_called:
+            self.dead_called = True
+            try:
+                from end_menu.game_over import game_over
+                game_over()
+            except Exception as e:
+                print("game_over call failed:", e)
+
     def start_attack(self):
         self.state = "attack"
         self.attack_done = False
+        self.damage_applied = False  # ✅ reset per attack
         self.animations["attack"].reset()
 
     def update(self, keys):
@@ -147,7 +185,6 @@ class Samurai:
         sword_h = int(55 * SCALE)
         sword_y = self.rect.y + int(32 * SCALE)
 
-        # hitbox dichter of verder bij character (rechts)
         if self.facing_right:
             self.attack_hitbox = pygame.Rect(
                 self.rect.right - int(30 * SCALE),
@@ -155,7 +192,6 @@ class Samurai:
                 sword_w,
                 sword_h
             )
-        # hitbox dichter of verder bij character (links)
         else:
             self.attack_hitbox = pygame.Rect(
                 self.rect.left - sword_w + int(30 * SCALE),
@@ -166,7 +202,7 @@ class Samurai:
 
     # clamp zodat hij niet uit scherm loopt
     def clamp_to_screen(self, screen_width):
-        margin = int(35 * SCALE)  # hoe ver hij mag "in" het scherm lopen
+        margin = int(35 * SCALE)
 
         if self.rect.left < -margin:
             self.rect.left = -margin
@@ -174,18 +210,29 @@ class Samurai:
         if self.rect.right > screen_width + margin:
             self.rect.right = screen_width + margin
 
-    # hitbox mee corrigeren
+        # hitbox mee corrigeren
         self.hitbox.topleft = (
-        self.rect.x + int(HBX * SCALE),
-        self.rect.y + int(HBY * SCALE)
-    )
+            self.rect.x + int(HBX * SCALE),
+            self.rect.y + int(HBY * SCALE)
+        )
 
-
-    # maakt het scherm
     def draw(self, screen):
         screen.blit(self.image, self.rect)
-
-        # DEBUG
-        # pygame.draw.rect(screen, (0, 255, 0), self.hitbox, 2)
-        # if self.attack_hitbox:
-        #     pygame.draw.rect(screen, (255, 0, 0), self.attack_hitbox, 2)
+        # draw healthbar fixed top-right
+        top_margin = 20
+        right_margin = 20
+        screen_w = screen.get_width()
+        if self.healthbar_images:
+            step = (self.hp // 10) * 10
+            step = max(0, min(100, step))
+            hb_img = self.healthbar_images.get(step)
+            if hb_img:
+                x = screen_w - hb_img.get_width() - right_margin
+                screen.blit(hb_img, (x, top_margin))
+        else:
+            hp_ratio = self.hp / self.max_hp
+            bar_w = 150
+            bar_h = 16
+            x = screen_w - bar_w - right_margin
+            pygame.draw.rect(screen, (255,0,0), (x, top_margin, bar_w, bar_h))
+            pygame.draw.rect(screen, (0,255,0), (x, top_margin, int(bar_w * hp_ratio), bar_h))

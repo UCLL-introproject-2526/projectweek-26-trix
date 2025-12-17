@@ -1,5 +1,7 @@
 from maps.map_module import generate_map
 from main_menu.menu import load_menu
+from end_menu.game_over import game_over
+
 #from Character.samurai import Samurai
 #from Character.warrior import Warrior
 
