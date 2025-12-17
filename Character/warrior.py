@@ -4,11 +4,11 @@ from utility import load_images
 
 SCALE = 5.0
 
-BASE_HBX, BASE_HBY, BASE_HBW, BASE_HBH = 54, 47, 54, 60
+BASE_HBX, BASE_HBY, BASE_HBW, BASE_HBH = 54, 47, 45, 60
 BASE_SWORD_X = 53
-BASE_SWORD_Y = 45
-BASE_SWORD_W = 50
-BASE_SWORD_H = 70
+BASE_SWORD_Y = 60
+BASE_SWORD_W = 20
+BASE_SWORD_H = 35
 
 
 class Warrior:
@@ -168,3 +168,9 @@ class Warrior:
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+        
+        # DEBUG HITBOXES
+        #pygame.draw.rect(screen, (0, 255, 0), self.hitbox, 2)
+        #if self.attack_hitbox:
+            #pygame.draw.rect(screen, (255, 0, 0), self.attack_hitbox, 2)
+
