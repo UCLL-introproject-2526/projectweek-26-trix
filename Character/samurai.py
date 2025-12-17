@@ -68,9 +68,15 @@ class Samurai:
         space_pressed = space_now and not self.prev_space
         self.prev_space = space_now
 
+<<<<<<< HEAD
         z_now = keys[pygame.K_UP]
         z_pressed = z_now and not self.prev_z
         self.prev_z = z_now
+=======
+        UP_now = keys[pygame.K_UP]
+        UP_pressed = UP_now and not self.prev_UP
+        self.prev_UP = UP_now
+>>>>>>> a05440e (update)
 
         moving = False
 
@@ -78,6 +84,7 @@ class Samurai:
         if space_pressed and self.state != "attack":
             self.start_attack()
 
+<<<<<<< HEAD
         # movement (OOK TIJDENS ATTACK)
         if keys[pygame.K_RIGHT]:
             self.rect.x += self.speed
@@ -92,6 +99,22 @@ class Samurai:
         if z_pressed and self.on_ground:
             self.vel_y = -self.jump_strength
             self.on_ground = False
+=======
+        # movement
+        if self.state != "attack":
+            if keys[pygame.K_RIGHT]:
+                self.rect.x += self.speed
+                self.facing_right = True
+                moving = True
+            elif keys[pygame.K_LEFT]:
+                self.rect.x -= self.speed
+                self.facing_right = False
+                moving = True
+
+            if UP_pressed and self.on_ground:
+                self.vel_y = -self.jump_strength
+                self.on_ground = False
+>>>>>>> a05440e (update)
 
         # gravity
         if not self.on_ground:
