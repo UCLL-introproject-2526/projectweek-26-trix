@@ -2,10 +2,11 @@ import pygame
 from animation import Animation
 from utility import load_images
 
-SCALE = 1.0  # pas aan als je warrior groter/kleiner wil
+SCALE = 5.0  # pas aan als je warrior groter/kleiner wil
 
 # hitbox (basiswaarden, schalen mee)
 BASE_HBX, BASE_HBY, BASE_HBW, BASE_HBH = 54, 47, 54, 60
+
 # sword/attack hitbox (basiswaarden, schalen mee)
 BASE_SWORD_X = 53
 BASE_SWORD_Y = 45
@@ -49,7 +50,7 @@ class Warrior:
         self.speed = int(4 * SCALE)
         self.vel_y = 0
         self.gravity = 0.7 * SCALE
-        self.jump_strength = 12 * SCALE
+        self.jump_strength = 10 * SCALE
         self.on_ground = True
         self.ground_y = y
 
@@ -73,7 +74,8 @@ class Warrior:
         jump_pressed = jump_now and not self.prev_jump
         self.prev_jump = jump_now
 
-        attack_now = keys[pygame.K_KP_ENTER]   # <-- verander naar K_RSHIFT of K_RETURN als je wil
+        # ✅ ENTER en NUMPAD ENTER
+        attack_now = keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]
         attack_pressed = attack_now and not self.prev_attack
         self.prev_attack = attack_now
 
@@ -136,7 +138,6 @@ class Warrior:
             if anim.finished():
                 self.attack_hitbox = None
                 self.state = "jump" if not self.on_ground else ("run" if moving else "idle")
-
         else:
             self.attack_hitbox = None
 
@@ -167,10 +168,27 @@ class Warrior:
                 sword_h
             )
 
+    # ✅ NIEUW: clamp zodat hij niet uit scherm loopt
+    def clamp_to_screen(self, screen_width):
+        margin = int(80 * SCALE)  # hoe ver hij mag "in" het scherm lopen
+
+        if self.rect.left < -margin:
+         self.rect.left = -margin
+
+        if self.rect.right > screen_width + margin:
+            self.rect.right = screen_width + margin
+
+    # hitbox mee corrigeren
+        self.hitbox.topleft = (
+        self.rect.x + int(BASE_HBX * SCALE),
+        self.rect.y + int(BASE_HBY * SCALE)
+    )
+
+
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
         # debug (zet uit als je wil)
-        pygame.draw.rect(screen, (0, 255, 0), self.hitbox, 2)
-        if self.attack_hitbox:
-            pygame.draw.rect(screen, (255, 0, 0), self.attack_hitbox, 2)
+        # pygame.draw.rect(screen, (0, 255, 0), self.hitbox, 2)
+        # if self.attack_hitbox:
+        #     pygame.draw.rect(screen, (255, 0, 0), self.attack_hitbox, 2)

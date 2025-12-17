@@ -19,9 +19,9 @@ def generate_map():
 
     clock = pygame.time.Clock()
 
-    # 🔥 MAAK JE SPELERS AAN
-    samurai = Samurai(500, 310)     # Q/D/Z/SPACE
-    warrior = Warrior(100, 330)     # ARROWS + ENTER
+    # MAAK JE SPELERS AAN
+    samurai = Samurai(500, 420)     # Q/D/Z/SPACE
+    warrior = Warrior(100, 385)     # ARROWS + ENTER
 
     running = True
     while running:
@@ -33,11 +33,15 @@ def generate_map():
 
         keys = pygame.key.get_pressed()
 
-        # 🔄 UPDATE
+        # UPDATE
         samurai.update(keys)
         warrior.update(keys)
 
-        # 🎨 DRAW
+        # BORDER (HIER) -> kan niet uit het scherm lopen
+        samurai.clamp_to_screen(screen_width)
+        warrior.clamp_to_screen(screen_width)
+
+        # DRAW
         screen.blit(background, (0, 0))
         samurai.draw(screen)
         warrior.draw(screen)

@@ -3,7 +3,7 @@ from animation import Animation
 from utility import load_images
 
 # scale (vergrooting van mannetje zal alles veranderen)
-SCALE = 1.5
+SCALE = 5.8
 
 # originele hitbox (voor 96x96 sprite)
 HBX, HBY, HBW, HBH = 32, 25, 32, 55
@@ -47,7 +47,7 @@ class Samurai:
         self.speed = int(4 * SCALE)
         self.vel_y = 0
         self.gravity = 0.7 * SCALE
-        self.jump_strength = 12 * SCALE
+        self.jump_strength = 8 * SCALE
         self.on_ground = True
         self.ground_y = y
 
@@ -132,7 +132,6 @@ class Samurai:
             if anim.finished():
                 self.attack_hitbox = None
                 self.state = "idle"
-
         else:
             self.attack_hitbox = None
 
@@ -147,7 +146,8 @@ class Samurai:
         sword_w = int(35 * SCALE)
         sword_h = int(55 * SCALE)
         sword_y = self.rect.y + int(32 * SCALE)
-    #hitbox dichter of verder bij character (rechts)
+
+        # hitbox dichter of verder bij character (rechts)
         if self.facing_right:
             self.attack_hitbox = pygame.Rect(
                 self.rect.right - int(30 * SCALE),
@@ -155,7 +155,7 @@ class Samurai:
                 sword_w,
                 sword_h
             )
-    #hitbox dichter of verder bij character (rechts)
+        # hitbox dichter of verder bij character (links)
         else:
             self.attack_hitbox = pygame.Rect(
                 self.rect.left - sword_w + int(30 * SCALE),
@@ -163,11 +163,29 @@ class Samurai:
                 sword_w,
                 sword_h
             )
+
+    # clamp zodat hij niet uit scherm loopt
+    def clamp_to_screen(self, screen_width):
+        margin = int(35 * SCALE)  # hoe ver hij mag "in" het scherm lopen
+
+        if self.rect.left < -margin:
+            self.rect.left = -margin
+
+        if self.rect.right > screen_width + margin:
+            self.rect.right = screen_width + margin
+
+    # hitbox mee corrigeren
+        self.hitbox.topleft = (
+        self.rect.x + int(HBX * SCALE),
+        self.rect.y + int(HBY * SCALE)
+    )
+
+
     # maakt het scherm
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
         # DEBUG
-        pygame.draw.rect(screen, (0, 255, 0), self.hitbox, 2)
-        if self.attack_hitbox:
-            pygame.draw.rect(screen, (255, 0, 0), self.attack_hitbox, 2)
+        # pygame.draw.rect(screen, (0, 255, 0), self.hitbox, 2)
+        # if self.attack_hitbox:
+        #     pygame.draw.rect(screen, (255, 0, 0), self.attack_hitbox, 2)
