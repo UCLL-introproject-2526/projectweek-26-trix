@@ -5,9 +5,7 @@ from Character.samurai import Samurai
 from Character.warrior import Warrior
 
 
-# =========================
 # HEALTHBAR HELPERS
-# =========================
 
 def load_healthbar_frames():
     """
@@ -32,19 +30,32 @@ def hp_to_key(hp):
     return (hp // 10) * 10
 
 
-# =========================
 # MAP / GAME LOOP
-# =========================
 
-def generate_map():
-    pygame.init()
+def generate_map(screen):
+    """
+    Returns:
+      - "menu"     : terug naar menu
+      - "restart"  : opnieuw starten
+      - "quit"     : afsluiten
+    """
 
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    screen_width, screen_height = screen.get_size()
     pygame.display.set_caption("Warrior Hills")
 
-    background = pygame.image.load("background.jpg").convert()
-    background = pygame.transform.scale(background, (screen_width, screen_height))
+    screen_width, screen_height = screen.get_size()
+
+    # Background 
+    base_dir = os.path.dirname(os.path.abspath(__file__))   # maps/
+    project_dir = os.path.dirname(base_dir)                 # project root
+    bg_path = os.path.join(project_dir, "background.jpg")
+
+    try:
+        background = pygame.image.load(bg_path).convert()
+        background = pygame.transform.scale(background, (screen_width, screen_height))
+    except Exception as e:
+        print("Warning: kon background niet laden:", bg_path, e)
+        background = pygame.Surface((screen_width, screen_height))
+        background.fill((0, 0, 0))
 
     clock = pygame.time.Clock()
 
@@ -65,20 +76,20 @@ def generate_map():
     running = True
     while running:
 
-        # -----------------
         # EVENTS
-        # -----------------
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                running = False
+                return "quit"
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return "menu"
 
         keys = pygame.key.get_pressed()
 
-        # -----------------
         # UPDATE
-        # -----------------
+
         samurai.update(keys)
         warrior.update(keys)
 
@@ -86,9 +97,8 @@ def generate_map():
         samurai.clamp_to_screen(screen_width)
         warrior.clamp_to_screen(screen_width)
 
-        # -----------------
         # DAMAGE (10 PER HIT)
-        # -----------------
+
         if samurai.attack_hitbox and not samurai.damage_applied:
             if samurai.attack_hitbox.colliderect(warrior.hitbox):
                 warrior.hp = max(0, warrior.hp - 10)
@@ -99,19 +109,19 @@ def generate_map():
                 samurai.hp = max(0, samurai.hp - 10)
                 warrior.damage_applied = True
 
-        # -----------------
         # GAME OVER
-        # (LAZY IMPORT -> voorkomt circular import)
-        # -----------------
-        if samurai.hp <= 0 or warrior.hp <= 0:
-            pygame.quit()
-            from end_menu.game_over import game_over
-            game_over()
-            return
 
-        # -----------------
+        if samurai.hp <= 0 or warrior.hp <= 0:
+            from end_menu.game_over import game_over  # lazy import ok
+            result = game_over(screen)  # moet "restart" of "quit" returnen
+
+            if result == "restart":
+                return "restart"
+            else:
+                return "quit"
+
         # DRAW
-        # -----------------
+
         screen.blit(background, (0, 0))
         samurai.draw(screen)
         warrior.draw(screen)
@@ -121,9 +131,11 @@ def generate_map():
         samurai_key = hp_to_key(samurai.hp)
 
         # Warrior: linksboven
+
         screen.blit(healthbar_images[warrior_key], (20, 20))
 
         # Samurai: rechtsboven
+        
         screen.blit(
             healthbar_images[samurai_key],
             (screen_width - hb_width - 20, 20)
@@ -132,4 +144,4 @@ def generate_map():
         pygame.display.flip()
         clock.tick(60)
 
-    pygame.quit()
+    return "quit"

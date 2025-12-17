@@ -38,7 +38,7 @@ class Warrior:
         self.attack_hitbox = None
         self.attack_done = False
         self.attack_frame = 2
-        self.damage_applied = False  # ✅ FIX voor je error
+        self.damage_applied = False
 
         # input edge detection
         self.prev_attack = False
@@ -68,40 +68,43 @@ class Warrior:
         self.state = "attack"
         self.attack_done = False
         self.attack_hitbox = None
-        self.damage_applied = False  # reset per attack
+        self.damage_applied = False
         self.animations["attack"].reset()
 
     def update(self, keys):
-        left_now = keys[pygame.K_LEFT]
-        right_now = keys[pygame.K_RIGHT]
+        left_now = keys[pygame.K_q]
+        right_now = keys[pygame.K_d]
 
-        jump_now = keys[pygame.K_UP]
+        jump_now = keys[pygame.K_z]
         jump_pressed = jump_now and not self.prev_jump
         self.prev_jump = jump_now
 
-        attack_now = keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]
+        attack_now = keys[pygame.K_SPACE]
         attack_pressed = attack_now and not self.prev_attack
         self.prev_attack = attack_now
 
         moving = False
 
+        # start attack
         if attack_pressed and self.state != "attack":
             self.start_attack()
 
-        if self.state != "attack":
-            if right_now:
-                self.rect.x += self.speed
-                self.facing_right = True
-                moving = True
-            elif left_now:
-                self.rect.x -= self.speed
-                self.facing_right = False
-                moving = True
+        # ✅ movement (OOK TIJDENS ATTACK)
+        if right_now:
+            self.rect.x += self.speed
+            self.facing_right = True
+            moving = True
+        elif left_now:
+            self.rect.x -= self.speed
+            self.facing_right = False
+            moving = True
 
-            if jump_pressed and self.on_ground:
-                self.vel_y = -self.jump_strength
-                self.on_ground = False
+        # ✅ jump (OOK TIJDENS ATTACK)
+        if jump_pressed and self.on_ground:
+            self.vel_y = -self.jump_strength
+            self.on_ground = False
 
+        # gravity
         if not self.on_ground:
             self.vel_y += self.gravity
             self.rect.y += self.vel_y
@@ -110,9 +113,11 @@ class Warrior:
                 self.vel_y = 0
                 self.on_ground = True
 
+        # state: attack blijft attack tot anim klaar is
         if self.state != "attack":
             self.state = "jump" if not self.on_ground else ("run" if moving else "idle")
 
+        # animation
         anim = self.animations[self.state]
         anim.update()
 
@@ -123,6 +128,7 @@ class Warrior:
         self.image = img
         self.rect = self.image.get_rect(topleft=self.rect.topleft)
 
+        # attack hitbox timing
         if self.state == "attack":
             if int(anim.index) == self.attack_frame and not self.attack_done:
                 self.create_attack_hitbox()
@@ -132,10 +138,12 @@ class Warrior:
 
             if anim.finished():
                 self.attack_hitbox = None
+                # na attack: ga naar juiste state op basis van beweging/grond
                 self.state = "jump" if not self.on_ground else ("run" if moving else "idle")
         else:
             self.attack_hitbox = None
 
+        # update body hitbox
         self.hitbox.topleft = (
             self.rect.x + int(BASE_HBX * SCALE),
             self.rect.y + int(BASE_HBY * SCALE),
@@ -168,9 +176,8 @@ class Warrior:
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
-        
-        # DEBUG HITBOXES
-        #pygame.draw.rect(screen, (0, 255, 0), self.hitbox, 2)
-        #if self.attack_hitbox:
-            #pygame.draw.rect(screen, (255, 0, 0), self.attack_hitbox, 2)
 
+        # DEBUG HITBOXES
+        # pygame.draw.rect(screen, (0, 255, 0), self.hitbox, 2)
+        # if self.attack_hitbox:
+        #     pygame.draw.rect(screen, (255, 0, 0), self.attack_hitbox, 2)
