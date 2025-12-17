@@ -2,7 +2,7 @@ from maps.map_module import generate_map
 from main_menu.menu import load_menu
 
 def start_game():
-    result = load_menu()
+    result = load_menu()  # ❗ maar één keer
 
     if result == "play":
         generate_map()
