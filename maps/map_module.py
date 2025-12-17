@@ -1,90 +1,135 @@
 import pygame
 import os
+
 from Character.samurai import Samurai
 from Character.warrior import Warrior
+
+
+# =========================
+# HEALTHBAR HELPERS
+# =========================
+
+def load_healthbar_frames():
+    """
+    Laadt healthbars:
+    healthbar_0.png, healthbar_10.png, ..., healthbar_100.png
+    """
+    base_dir = os.path.dirname(os.path.abspath(__file__))   # maps/
+    project_dir = os.path.dirname(base_dir)                 # project root
+    hb_dir = os.path.join(project_dir, "healthbar")
+
+    frames = {}
+    for hp in range(0, 101, 10):
+        path = os.path.join(hb_dir, f"healthbar_{hp}.png")
+        frames[hp] = pygame.image.load(path).convert_alpha()
+
+    return frames
+
+
+def hp_to_key(hp):
+    """Zet hp om naar 0,10,20,...100"""
+    hp = max(0, min(100, hp))
+    return (hp // 10) * 10
+
+
+# =========================
+# MAP / GAME LOOP
+# =========================
 
 def generate_map():
     pygame.init()
 
-    # Fullscreen display
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     screen_width, screen_height = screen.get_size()
-
     pygame.display.set_caption("Warrior Hills")
-    icon = pygame.image.load("warrior hills logo.png").convert_alpha()
-    pygame.display.set_icon(icon)
 
-    # Background
     background = pygame.image.load("background.jpg").convert()
     background = pygame.transform.scale(background, (screen_width, screen_height))
-    
-    # Music setup
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    PROJECT_DIR = os.path.dirname(BASE_DIR)
-    MUSIC_DIR = os.path.join(PROJECT_DIR, "music")
-    GAME_MUSIC = os.path.join(MUSIC_DIR, "Dragon_Castle.mp3")
-
-    # initialize audio mixer
-    try:
-        pygame.mixer.init()
-    except Exception as e:
-        print("Warning: pygame.mixer.init() failed:", e)
-
-    # select a music file (prefer GAME_MUSIC, else first available)
-    music_file = None
-    if os.path.isdir(MUSIC_DIR):
-        if os.path.exists(GAME_MUSIC):
-            music_file = GAME_MUSIC
-        else:
-            candidates = [f for f in os.listdir(MUSIC_DIR) if f.lower().endswith((".mp3", ".ogg", ".wav"))]
-            if candidates:
-                music_file = os.path.join(MUSIC_DIR, candidates[0])
-
-    if music_file:
-        try:
-            pygame.mixer.music.load(music_file)
-            pygame.mixer.music.set_volume(0.5)
-            pygame.mixer.music.play(-1)
-        except Exception as e:
-            print("Could not load/play music:", e)
-    else:
-        print(f"No music file found in {MUSIC_DIR}")
-
 
     clock = pygame.time.Clock()
 
-    # MAAK JE SPELERS AAN
-    samurai = Samurai(500, 420)     # Q/D/Z/SPACE
-    warrior = Warrior(100, 385)     # ARROWS + ENTER
+    # Players
+    samurai = Samurai(500, 420)
+    warrior = Warrior(100, 385)
+
+    # HP setup
+    samurai.max_hp = 100
+    samurai.hp = 100
+    warrior.max_hp = 100
+    warrior.hp = 100
+
+    # Load healthbars
+    healthbar_images = load_healthbar_frames()
+    hb_width = healthbar_images[100].get_width()
 
     running = True
     while running:
+
+        # -----------------
+        # EVENTS
+        # -----------------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.mixer.music.stop()
                 running = False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                pygame.mixer.music.stop()
                 running = False
 
         keys = pygame.key.get_pressed()
 
+        # -----------------
         # UPDATE
+        # -----------------
         samurai.update(keys)
         warrior.update(keys)
 
-        # BORDER (HIER) -> kan niet uit het scherm lopen
+        # Borders
         samurai.clamp_to_screen(screen_width)
         warrior.clamp_to_screen(screen_width)
 
+        # -----------------
+        # DAMAGE (10 PER HIT)
+        # -----------------
+        if samurai.attack_hitbox and not samurai.damage_applied:
+            if samurai.attack_hitbox.colliderect(warrior.hitbox):
+                warrior.hp = max(0, warrior.hp - 10)
+                samurai.damage_applied = True
+
+        if warrior.attack_hitbox and not warrior.damage_applied:
+            if warrior.attack_hitbox.colliderect(samurai.hitbox):
+                samurai.hp = max(0, samurai.hp - 10)
+                warrior.damage_applied = True
+
+        # -----------------
+        # GAME OVER
+        # (LAZY IMPORT -> voorkomt circular import)
+        # -----------------
+        if samurai.hp <= 0 or warrior.hp <= 0:
+            pygame.quit()
+            from end_menu.game_over import game_over
+            game_over()
+            return
+
+        # -----------------
         # DRAW
+        # -----------------
         screen.blit(background, (0, 0))
         samurai.draw(screen)
         warrior.draw(screen)
 
+        # HEALTHBAR OVERLAY
+        warrior_key = hp_to_key(warrior.hp)
+        samurai_key = hp_to_key(samurai.hp)
+
+        # Warrior: linksboven
+        screen.blit(healthbar_images[warrior_key], (20, 20))
+
+        # Samurai: rechtsboven
+        screen.blit(
+            healthbar_images[samurai_key],
+            (screen_width - hb_width - 20, 20)
+        )
+
         pygame.display.flip()
         clock.tick(60)
 
-
-    pygame.mixer.music.stop()
     pygame.quit()

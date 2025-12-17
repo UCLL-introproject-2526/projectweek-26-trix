@@ -1,14 +1,10 @@
 import pygame
-import os
 from animation import Animation
 from utility import load_images
 
-SCALE = 5.0  # pas aan als je warrior groter/kleiner wil
+SCALE = 5.0
 
-# hitbox (basiswaarden, schalen mee)
 BASE_HBX, BASE_HBY, BASE_HBW, BASE_HBH = 54, 47, 54, 60
-
-# sword/attack hitbox (basiswaarden, schalen mee)
 BASE_SWORD_X = 53
 BASE_SWORD_Y = 45
 BASE_SWORD_W = 50
@@ -42,8 +38,9 @@ class Warrior:
         self.attack_hitbox = None
         self.attack_done = False
         self.attack_frame = 2
+        self.damage_applied = False  # ✅ FIX voor je error
 
-        # key edge detection (zodat attack niet hapert)
+        # input edge detection
         self.prev_attack = False
         self.prev_jump = False
 
@@ -58,35 +55,23 @@ class Warrior:
         # health
         self.max_hp = 100
         self.hp = 100
-        self.dead_called = False
-
-        # load healthbar images (healthbar_100.png, healthbar_90.png, ...)
-        self.healthbar_images = {}
-        try:
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            project_dir = os.path.dirname(base_dir)
-            images_dir = os.path.join(project_dir, "healthbar")
-            for val in range(100, -10, -10):
-                fname = os.path.join(images_dir, f"healthbar_{val}.png")
-                if os.path.exists(fname):
-                    img = pygame.image.load(fname).convert_alpha()
-                    self.healthbar_images[val] = img
-        except Exception:
-            self.healthbar_images = {}
 
     def _scale_image(self, img):
         w = int(img.get_width() * SCALE)
         h = int(img.get_height() * SCALE)
         return pygame.transform.scale(img, (w, h))
 
+    def take_damage(self, amount):
+        self.hp = max(0, self.hp - amount)
+
     def start_attack(self):
         self.state = "attack"
         self.attack_done = False
         self.attack_hitbox = None
+        self.damage_applied = False  # reset per attack
         self.animations["attack"].reset()
 
     def update(self, keys):
-        # --- Arrow controls ---
         left_now = keys[pygame.K_LEFT]
         right_now = keys[pygame.K_RIGHT]
 
@@ -94,18 +79,15 @@ class Warrior:
         jump_pressed = jump_now and not self.prev_jump
         self.prev_jump = jump_now
 
-        # ✅ ENTER en NUMPAD ENTER
         attack_now = keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]
         attack_pressed = attack_now and not self.prev_attack
         self.prev_attack = attack_now
 
         moving = False
 
-        # start attack 1x
         if attack_pressed and self.state != "attack":
             self.start_attack()
 
-        # movement & jump alleen als je niet attackt
         if self.state != "attack":
             if right_now:
                 self.rect.x += self.speed
@@ -120,7 +102,6 @@ class Warrior:
                 self.vel_y = -self.jump_strength
                 self.on_ground = False
 
-        # gravity
         if not self.on_ground:
             self.vel_y += self.gravity
             self.rect.y += self.vel_y
@@ -129,14 +110,9 @@ class Warrior:
                 self.vel_y = 0
                 self.on_ground = True
 
-        # state selection (if not attacking)
         if self.state != "attack":
-            if not self.on_ground:
-                self.state = "jump"
-            else:
-                self.state = "run" if moving else "idle"
+            self.state = "jump" if not self.on_ground else ("run" if moving else "idle")
 
-        # update animation
         anim = self.animations[self.state]
         anim.update()
 
@@ -147,7 +123,6 @@ class Warrior:
         self.image = img
         self.rect = self.image.get_rect(topleft=self.rect.topleft)
 
-        # attack hitbox timing + finish
         if self.state == "attack":
             if int(anim.index) == self.attack_frame and not self.attack_done:
                 self.create_attack_hitbox()
@@ -161,7 +136,6 @@ class Warrior:
         else:
             self.attack_hitbox = None
 
-        # update player hitbox
         self.hitbox.topleft = (
             self.rect.x + int(BASE_HBX * SCALE),
             self.rect.y + int(BASE_HBY * SCALE),
@@ -174,67 +148,23 @@ class Warrior:
         sword_h = int(BASE_SWORD_H * SCALE)
 
         if self.facing_right:
-            self.attack_hitbox = pygame.Rect(
-                self.rect.right - sword_x,
-                sword_y,
-                sword_w,
-                sword_h
-            )
+            self.attack_hitbox = pygame.Rect(self.rect.right - sword_x, sword_y, sword_w, sword_h)
         else:
-            self.attack_hitbox = pygame.Rect(
-                self.rect.left - sword_w + sword_x,
-                sword_y,
-                sword_w,
-                sword_h
-            )
+            self.attack_hitbox = pygame.Rect(self.rect.left - sword_w + sword_x, sword_y, sword_w, sword_h)
 
-    # ✅ NIEUW: clamp zodat hij niet uit scherm loopt
     def clamp_to_screen(self, screen_width):
-        margin = int(80 * SCALE)  # hoe ver hij mag "in" het scherm lopen
+        margin = int(35 * SCALE)
 
         if self.rect.left < -margin:
-         self.rect.left = -margin
+            self.rect.left = -margin
 
         if self.rect.right > screen_width + margin:
             self.rect.right = screen_width + margin
 
-    # hitbox mee corrigeren
         self.hitbox.topleft = (
-        self.rect.x + int(BASE_HBX * SCALE),
-        self.rect.y + int(BASE_HBY * SCALE)
-    )
-
+            self.rect.x + int(BASE_HBX * SCALE),
+            self.rect.y + int(BASE_HBY * SCALE),
+        )
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
-
-        # draw healthbar fixed top-left
-        top_margin = 20
-        left_margin = 20
-        if self.healthbar_images:
-            step = (self.hp // 10) * 10
-            step = max(0, min(100, step))
-            hb_img = self.healthbar_images.get(step)
-            if hb_img:
-                screen.blit(hb_img, (left_margin, top_margin))
-        else:
-            hp_ratio = self.hp / self.max_hp
-            bar_w = 150
-            bar_h = 16
-            pygame.draw.rect(screen, (255,0,0), (left_margin, top_margin, bar_w, bar_h))
-            pygame.draw.rect(screen, (0,255,0), (left_margin, top_margin, int(bar_w * hp_ratio), bar_h))
-
-    def take_damage(self, amount):
-        self.hp = max(0, self.hp - amount)
-        if self.hp == 0 and not getattr(self, 'dead_called', False):
-            self.dead_called = True
-            try:
-                from end_menu.game_over import game_over
-                game_over()
-            except Exception as e:
-                print("game_over call failed:", e)
-
-        # debug (zet uit als je wil)
-        # pygame.draw.rect(screen, (0, 255, 0), self.hitbox, 2)
-        # if self.attack_hitbox:
-        #     pygame.draw.rect(screen, (255, 0, 0), self.attack_hitbox, 2)

@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+from main import start_game
 
 def game_over():
     
@@ -54,7 +55,7 @@ def game_over():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    return  # restart game hier
+                    start_game()
                 if event.key == pygame.K_q:
                     pygame.quit()
                     sys.exit()
