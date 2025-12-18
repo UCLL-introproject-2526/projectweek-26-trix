@@ -57,7 +57,7 @@ def start_game():
             if result == "menu":
                 state = "menu"
             elif result == "restart":
-                state = "game"
+                state = "select"
             else:
                 running = False
 

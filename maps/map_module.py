@@ -9,10 +9,10 @@ from Character.king import King
 from Character.martial_hero import MartialHero
 from Character.martial_hero2 import MartialHero2
 
-
+    # paths
 def load_healthbar_frames():
-    base_dir = os.path.dirname(os.path.abspath(__file__))  # maps/
-    project_dir = os.path.dirname(base_dir)                # project root
+    base_dir = os.path.dirname(os.path.abspath(__file__))  
+    project_dir = os.path.dirname(base_dir)                
     hb_dir = os.path.join(project_dir, "healthbar")
 
     frames = {}
@@ -28,8 +28,6 @@ def hp_to_key(hp):
 
 
 def compute_spawn_y(PlayerClass, desired_hitbox_bottom_y, controls):
-    # Some player classes accept a `controls` argument in __init__, others do not.
-    # Try instantiating with controls first, fall back to without.
     try:
         tmp = PlayerClass(0, 0, controls)
     except TypeError:
@@ -54,20 +52,19 @@ def generatemapscreen(screen,
                       selected_map="default"):
     pygame.display.set_caption("Warrior Hills")
     screen_width, screen_height = screen.get_size()
-
-    base_dir = os.path.dirname(os.path.abspath(__file__))   # .../maps
-    assets_dir = os.path.join(base_dir, "assets")           # .../maps/assets
+    # paths 
+    base_dir = os.path.dirname(os.path.abspath(__file__))   
+    assets_dir = os.path.join(base_dir, "assets")           
 
     if selected_map == "map1":
-        bg_file = "samurai_map.png"              # of .jpg, precies zoals bestand heet
+        bg_file = "samurai_map.png"              
     elif selected_map == "map2":
-        bg_file = "bergen.gif.gif"                   # als het echt zo heet, zonder extra .gif
+        bg_file = "bergen.gif.gif"                   
     else:
-        bg_file = "background.jpg"               # standaard
+        bg_file = "background.jpg"               
 
     bg_path = os.path.join(assets_dir, bg_file)
     print("Background pad:", bg_path)
-  # debug, mag je later verwijderen
 
     try:
         background = pygame.image.load(bg_path).convert()
@@ -76,26 +73,23 @@ def generatemapscreen(screen,
         print("Warning: kon background niet laden:", bg_path, e)
         background = pygame.Surface((screen_width, screen_height))
         background.fill((0, 0, 0))
-    # ------------------------------------------------------
 
     clock = pygame.time.Clock()
 
     floor_hitbox_bottom = int(screen_height * 0.90)
 
-    # --- AANPASBAAR: zet players lager/hoger ---
-    # positief = lager (naar beneden), negatief = hoger
-    p1_y_offset = 110
-    p2_y_offset = 110
-    # ------------------------------------------
-
-    p1_x = int(screen_width * 0.20)
+    # zet players lager/hoger ---
+    p1_y_offset = 120
+    p2_y_offset = 160
+    # begin positie van speler
+    p1_x = int(screen_width * 0.10)
     p2_x = int(screen_width * 0.80)
 
     if player1_char == "samurai":
         p1_y = compute_spawn_y(Samurai, floor_hitbox_bottom + p1_y_offset, P1)
         player1 = instantiate_player(Samurai, p1_x, p1_y, P1)
     elif player1_char == "warrior":
-        p1_y = compute_spawn_y(Warrior, floor_hitbox_bottom, P1)
+        p1_y = compute_spawn_y(Warrior, floor_hitbox_bottom + p1_y_offset, P1)
         player1 = instantiate_player(Warrior, p1_x, p1_y, P1)
     elif player1_char == "huntress":
         p1_y = compute_spawn_y(Huntress, floor_hitbox_bottom, P1)
@@ -114,7 +108,7 @@ def generatemapscreen(screen,
         p2_y = compute_spawn_y(Samurai, floor_hitbox_bottom + p2_y_offset, P2)
         player2 = instantiate_player(Samurai, p2_x, p2_y, P2)
     elif player2_char == "warrior":
-        p2_y = compute_spawn_y(Warrior, floor_hitbox_bottom, P2)
+        p2_y = compute_spawn_y(Warrior, floor_hitbox_bottom + p2_y_offset, P2)
         player2 = instantiate_player(Warrior, p2_x, p2_y, P2)
     elif player2_char == "huntress":
         p2_y = compute_spawn_y(Huntress, floor_hitbox_bottom, P2)
@@ -172,13 +166,14 @@ def generatemapscreen(screen,
         screen.blit(background, (0, 0))
         player1.draw(screen)
         player2.draw(screen)
-
+        
+        # healthbar hoort bij welke speler
         p2_key = hp_to_key(player2.hp)
         p1_key = hp_to_key(player1.hp)
 
-        screen.blit(healthbar_images[p2_key], (20, 20))
+        screen.blit(healthbar_images[p1_key], (20, 20))
         screen.blit(
-            healthbar_images[p1_key],
+            healthbar_images[p2_key],
             (screen_width - hb_width - 20, 20)
         )
 

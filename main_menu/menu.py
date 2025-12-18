@@ -28,7 +28,7 @@ def load_menu(screen):
                 surface.blit(scaled, rect)
             else:
                 surface.blit(self.image, self.rect)
-    # ---------------- COLORS ----------------
+    # COLORS (als teksttype)
     WHITE = (255, 255, 255)
     GREY = (225, 225, 225)
     DARK_BLUE = (149, 219, 242)
@@ -37,17 +37,17 @@ def load_menu(screen):
 
     FPS = 60
 
-    # ✅ gebruik het fullscreen screen dat je al hebt
+    # gebruik het fullscreen screen dat je al hebt
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_size()
 
-    # ---------------- PATHS ----------------
+    # PATHS 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_DIR = os.path.dirname(BASE_DIR)  # project root
     ASSETS_DIR = os.path.join(BASE_DIR, "assets")
     IMAGES_DIR = os.path.join(ASSETS_DIR, "images")
     MUSIC_DIR = os.path.join(PROJECT_DIR, "music")
 
-    # ⚠️ kies de juiste extensie die jij echt hebt
+    # kies de juiste extensie die jij echt hebt
 
 
     BACKGROUND_IMAGE = os.path.join(IMAGES_DIR, "main_menu.png")
@@ -59,13 +59,13 @@ def load_menu(screen):
     LOGO_IMAGE = os.path.join(IMAGES_DIR, "warrior_hills_logo.png")
       
 
-    # ---------------- TEXT HELPER ----------------
+    # TEXT HELPER 
     def create_surface_with_text(text, font_size, text_rgb):
         font = pygame.freetype.SysFont("PixelOperator8", font_size, bold=True)
         surface, _ = font.render(text, fgcolor=text_rgb)
         return surface.convert_alpha()
 
-    # ---------------- UI ELEMENT ----------------
+    # UI ELEMENT
 
     class UIElement(Sprite):
         def __init__(self, center_position, text, font_size, text_color, action=None, background=False):
@@ -94,7 +94,7 @@ def load_menu(screen):
                 pygame.draw.rect(surface, DARK_BLUE, self.box_rect, width=3)
             surface.blit(self.text_image, self.rect)
 
-    # ---------------- BUTTON ACTIONS ----------------
+    # BUTTON ACTIONS
     def stop_music():
         try:
             if pygame.mixer.get_init():
@@ -102,16 +102,9 @@ def load_menu(screen):
         except Exception:
             pass
 
-    # ---------------- INIT (GEEN pygame.init, GEEN set_mode) ----------------
+    # INIT
     pygame.display.set_caption("Warrior Hills")
     clock = pygame.time.Clock()
-
-    # mixer init mag, maar niet verplicht
-    try:
-        if not pygame.mixer.get_init():
-            pygame.mixer.init()
-    except Exception as e:
-        print("Menu: mixer init faalde:", e)
 
     # ---------------- MUSIC ----------------
     try:
