@@ -52,7 +52,7 @@ def game_over(screen):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     return "restart"
-                if event.key == pygame.K_q:
+                if event.key == pygame.K_a:
                     return "quit"
 
         screen.blit(background_image, (0, 0))
