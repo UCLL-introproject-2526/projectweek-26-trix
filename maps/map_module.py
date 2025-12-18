@@ -91,18 +91,6 @@ def generatemapscreen(screen,
     elif player1_char == "warrior":
         p1_y = compute_spawn_y(Warrior, floor_hitbox_bottom + p1_y_offset, P1)
         player1 = instantiate_player(Warrior, p1_x, p1_y, P1)
-    elif player1_char == "huntress":
-        p1_y = compute_spawn_y(Huntress, floor_hitbox_bottom, P1)
-        player1 = instantiate_player(Huntress, p1_x, p1_y, P1)
-    elif player1_char == "king":
-        p1_y = compute_spawn_y(King, floor_hitbox_bottom, P1)
-        player1 = instantiate_player(King, p1_x, p1_y, P1)
-    elif player1_char == "martial_hero":
-        p1_y = compute_spawn_y(MartialHero, floor_hitbox_bottom, P1)
-        player1 = instantiate_player(MartialHero, p1_x, p1_y, P1)
-    elif player1_char == "martial_hero2":
-        p1_y = compute_spawn_y(MartialHero2, floor_hitbox_bottom, P1)
-        player1 = instantiate_player(MartialHero2, p1_x, p1_y, P1)
 
     if player2_char == "samurai":
         p2_y = compute_spawn_y(Samurai, floor_hitbox_bottom + p2_y_offset, P2)
@@ -110,19 +98,7 @@ def generatemapscreen(screen,
     elif player2_char == "warrior":
         p2_y = compute_spawn_y(Warrior, floor_hitbox_bottom + p2_y_offset, P2)
         player2 = instantiate_player(Warrior, p2_x, p2_y, P2)
-    elif player2_char == "huntress":
-        p2_y = compute_spawn_y(Huntress, floor_hitbox_bottom, P2)
-        player2 = instantiate_player(Huntress, p2_x, p2_y, P2)
-    elif player2_char == "king":
-        p2_y = compute_spawn_y(King, floor_hitbox_bottom, P2)
-        player2 = instantiate_player(King, p2_x, p2_y, P2)
-    elif player2_char == "martial_hero":
-        p2_y = compute_spawn_y(MartialHero, floor_hitbox_bottom, P2)
-        player2 = instantiate_player(MartialHero, p2_x, p2_y, P2)
-    elif player2_char == "martial_hero2":
-        p2_y = compute_spawn_y(MartialHero2, floor_hitbox_bottom, P2)
-        player2 = instantiate_player(MartialHero2, p2_x, p2_y, P2)
-
+    
     player1.max_hp = 100
     player1.hp = 100
     player2.max_hp = 100

@@ -106,7 +106,7 @@ def load_menu(screen):
     pygame.display.set_caption("Warrior Hills")
     clock = pygame.time.Clock()
 
-    # ---------------- MUSIC ----------------
+    # MUSIC
     try:
         music_file = None
         if os.path.isdir(MUSIC_DIR):
@@ -126,7 +126,7 @@ def load_menu(screen):
     except Exception as e:
         print("Menu: kan muziek niet laden/afspelen:", e)
 
-    # ---------------- BACKGROUND ----------------
+    # BACKGROUND 
     try:
         background = pygame.image.load(BACKGROUND_IMAGE).convert()
         background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -135,7 +135,7 @@ def load_menu(screen):
         background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         background.fill((0, 0, 0))
 
-    # ---------------- UI ELEMENTS ----------------
+    # UI ELEMENTS
     result = None
     running = True
 
