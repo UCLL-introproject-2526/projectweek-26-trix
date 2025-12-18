@@ -61,21 +61,27 @@ def generatemapscreen(screen,
 
     floor_hitbox_bottom = int(screen_height * 0.90)
 
+    # --- AANPASBAAR: zet players lager/hoger ---
+    # positief = lager (naar beneden), negatief = hoger
+    p1_y_offset = 110
+    p2_y_offset = 110
+    # ------------------------------------------
+
     p1_x = int(screen_width * 0.20)
     p2_x = int(screen_width * 0.80)
 
     if player1_char == "samurai":
-        p1_y = compute_spawn_y(Samurai, floor_hitbox_bottom, P1)
+        p1_y = compute_spawn_y(Samurai, floor_hitbox_bottom + p1_y_offset, P1)
         player1 = Samurai(p1_x, p1_y, P1)
     else:
-        p1_y = compute_spawn_y(Warrior, floor_hitbox_bottom, P1)
+        p1_y = compute_spawn_y(Warrior, floor_hitbox_bottom + p1_y_offset, P1)
         player1 = Warrior(p1_x, p1_y, P1)
 
     if player2_char == "samurai":
-        p2_y = compute_spawn_y(Samurai, floor_hitbox_bottom, P2)
+        p2_y = compute_spawn_y(Samurai, floor_hitbox_bottom + p2_y_offset, P2)
         player2 = Samurai(p2_x, p2_y, P2)
     else:
-        p2_y = compute_spawn_y(Warrior, floor_hitbox_bottom, P2)
+        p2_y = compute_spawn_y(Warrior, floor_hitbox_bottom + p2_y_offset, P2)
         player2 = Warrior(p2_x, p2_y, P2)
 
     player1.max_hp = 100
