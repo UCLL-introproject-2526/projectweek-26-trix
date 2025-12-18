@@ -14,19 +14,16 @@ def game_over(screen):
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     PROJECT_DIR = os.path.dirname(BASE_DIR)
-    IMAGE_PATH = os.path.join(PROJECT_DIR, "assets", "images", "sky_background.jpg")
+    IMAGE_PATH = os.path.join(BASE_DIR, "assets", "images", "game_over_screen.png")
 
     try:
         background_image = pygame.image.load(IMAGE_PATH).convert()
         background_image = pygame.transform.scale(background_image, (window_width, window_height))
     except Exception as e:
-        print(f"Warning: kon achtergrond niet laden {IMAGE_PATH}:", e)
+        print(f"kon achtergrond niet laden {IMAGE_PATH}:", e)
         background_image = pygame.Surface((window_width, window_height))
         background_image.fill(black)
 
-    my_font = pygame.font.SysFont("PixelOperator8", 90)
-    game_over_surface = my_font.render("GAME OVER", False, white)
-    game_over_rect = game_over_surface.get_rect(midtop=(window_width // 2, window_height // 4))
 
     info_font = pygame.font.SysFont("PixelOperator8", 40)
     restart_surface = info_font.render("Press R to Restart", False, white)
@@ -52,7 +49,6 @@ def game_over(screen):
                     return "quit"
 
         screen.blit(background_image, (0, 0))
-        screen.blit(game_over_surface, game_over_rect)
 
         pygame.draw.rect(screen, white,
                          (restart_rect.x - padding_x, restart_rect.y - padding_y,

@@ -5,6 +5,29 @@ import os
 
 
 def load_menu(screen):
+    
+
+    class ImageButton(Sprite): 
+        def __init__(self,image_path, center_position, action=None):
+            super().__init__()
+            self.image = pygame.image.load(image_path).convert_alpha()
+            self.rect = self.image.get_rect(center=center_position)
+            self.action = action
+            self.hovered = False
+        
+        def update(self, mouse_pos, mouse_pressed):
+            self.hovered = self.rect.collidepoint(mouse_pos)
+            if self.hovered and mouse_pressed[0] and self.action:
+                self.action()
+                
+        
+        def draw(self, surface):
+            if self.hovered:
+                scaled = pygame.transform.scale_by (self.image, 1.05)
+                rect = scaled.get_rect(center=self.rect.center)
+                surface.blit(scaled, rect)
+            else:
+                surface.blit(self.image, self.rect)
     # ---------------- COLORS ----------------
     WHITE = (255, 255, 255)
     GREY = (225, 225, 225)
@@ -25,20 +48,25 @@ def load_menu(screen):
     MUSIC_DIR = os.path.join(PROJECT_DIR, "music")
 
     # ⚠️ kies de juiste extensie die jij echt hebt
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))   # main_menu/
-    PROJECT_DIR = os.path.dirname(BASE_DIR)                 # project root
 
-    IMAGES_DIR = os.path.join(PROJECT_DIR, "assets", "images")
-    BACKGROUND_IMAGE = os.path.join(IMAGES_DIR, "sky_background.jpg")
+
+    BACKGROUND_IMAGE = os.path.join(IMAGES_DIR, "main_menu.png")
     MENU_MUSIC = os.path.join(MUSIC_DIR, "time_for_adventure.mp3")
+    
+    PLAY_BUTTON = os.path.join(IMAGES_DIR, "play.sword.png")
+    QUIT_BUTTON = os.path.join(IMAGES_DIR, "quit.sword.png")
+    
+    LOGO_IMAGE = os.path.join(IMAGES_DIR, "warrior_hills_logo.png")
+      
 
-    # TEXT HELPER 
+    # ---------------- TEXT HELPER ----------------
     def create_surface_with_text(text, font_size, text_rgb):
         font = pygame.freetype.SysFont("PixelOperator8", font_size, bold=True)
         surface, _ = font.render(text, fgcolor=text_rgb)
         return surface.convert_alpha()
 
-    # UI ELEMENT
+    # ---------------- UI ELEMENT ----------------
+
     class UIElement(Sprite):
         def __init__(self, center_position, text, font_size, text_color, action=None, background=False):
             super().__init__()
@@ -114,7 +142,7 @@ def load_menu(screen):
         background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         background.fill((0, 0, 0))
 
-    #  UI ELEMENTS 
+    # ---------------- UI ELEMENTS ----------------
     result = None
     running = True
 
@@ -130,34 +158,30 @@ def load_menu(screen):
         result = "quit"
         running = False
 
-    title = UIElement(
-        center_position=(SCREEN_WIDTH // 2, 150),
-        text="Warrior Hills",
-        font_size=48,
-        text_color=TITLE_COLOR
+    title = ImageButton(
+        image_path= LOGO_IMAGE,
+        center_position=(SCREEN_WIDTH // 2, 250),
+
     )
 
-    play_button = UIElement(
-        center_position=(SCREEN_WIDTH // 2, 350),
-        text="Play",
-        font_size=48,
-        text_color=LIGHT_BLUE,
-        action=play_action,
-        background=True
+    play_button = ImageButton(
+    image_path=PLAY_BUTTON,
+    center_position=(SCREEN_WIDTH // 2, 550),
+    action=play_action,
     )
 
-    quit_button = UIElement(
-        center_position=(SCREEN_WIDTH // 2, 500),
-        text="Quit",
-        font_size=48,
-        text_color=LIGHT_BLUE,
-        action=quit_action,
-        background=True
+
+    quit_button = ImageButton(
+    image_path=QUIT_BUTTON,
+    center_position=(SCREEN_WIDTH // 2, 700),
+    action=quit_action,
+
     )
+    
 
     ui_elements = [title, play_button, quit_button]
 
-    #  MAIN LOOP 
+    # ---------------- MAIN LOOP ----------------
     while running:
         mouse_pos = pygame.mouse.get_pos()
         mouse_pressed = pygame.mouse.get_pressed()
