@@ -4,7 +4,6 @@ from maps.map_module import generatemapscreen
 from main_menu.menu import load_menu
 from main_menu.selection import loadselectionscreen
 
-
 def ensure_screen(screen):
     # Als display gequit is: opnieuw initialiseren + fullscreen opnieuw zetten
     if not pygame.display.get_init():

@@ -4,6 +4,10 @@ import os
 from controls import P1, P2
 from Character.samurai import Samurai
 from Character.warrior import Warrior
+from Character.huntress import Huntress
+from Character.king import King
+from Character.martial_hero import MartialHero
+from Character.martial_hero2 import MartialHero2
 
 
 def load_healthbar_frames():
@@ -76,16 +80,40 @@ def generatemapscreen(screen,
     if player1_char == "samurai":
         p1_y = compute_spawn_y(Samurai, floor_hitbox_bottom + p1_y_offset, P1)
         player1 = Samurai(p1_x, p1_y, P1)
-    else:
-        p1_y = compute_spawn_y(Warrior, floor_hitbox_bottom + p1_y_offset, P1)
+    elif player1_char == "warrior":
+        p1_y = compute_spawn_y(Warrior, floor_hitbox_bottom, P1)
         player1 = Warrior(p1_x, p1_y, P1)
+    elif player1_char == "huntress":
+        p1_y = compute_spawn_y(Huntress, floor_hitbox_bottom, P1)
+        player1 = Huntress(p1_x, p1_y, P1)
+    elif player1_char == "king":
+        p1_y = compute_spawn_y(King, floor_hitbox_bottom, P1)
+        player1 = King(p1_x, p1_y, P1)
+    elif player1_char == "martial_hero":
+        p1_y = compute_spawn_y(MartialHero, floor_hitbox_bottom, P1)
+        player1 = MartialHero(p1_x, p1_y, P1)
+    elif player1_char == "martial_hero2":
+        p2_y = compute_spawn_y(MartialHero2, floor_hitbox_bottom, P2)
+        player2 = MartialHero2(p2_x, p2_y, P2)
 
     if player2_char == "samurai":
         p2_y = compute_spawn_y(Samurai, floor_hitbox_bottom + p2_y_offset, P2)
         player2 = Samurai(p2_x, p2_y, P2)
-    else:
-        p2_y = compute_spawn_y(Warrior, floor_hitbox_bottom + p2_y_offset, P2)
+    elif player2_char == "warrior":
+        p2_y = compute_spawn_y(Warrior, floor_hitbox_bottom, P2)
         player2 = Warrior(p2_x, p2_y, P2)
+    elif player2_char == "huntress":
+        p2_y = compute_spawn_y(Huntress, floor_hitbox_bottom, P2)
+        player2 = Huntress(p2_x, p2_y, P2)
+    elif player2_char == "king":
+        p2_y = compute_spawn_y(King, floor_hitbox_bottom, P2)
+        player2 = King(p2_x, p2_y, P2)
+    elif player2_char == "martial_hero":
+        p2_y = compute_spawn_y(MartialHero, floor_hitbox_bottom, P2)
+        player2 = MartialHero(p2_x, p2_y, P2)
+    elif player2_char == "martial_hero2":
+        p2_y = compute_spawn_y(MartialHero2, floor_hitbox_bottom, P2)
+        player2 = MartialHero2(p2_x, p2_y, P2)
 
     player1.max_hp = 100
     player1.hp = 100
