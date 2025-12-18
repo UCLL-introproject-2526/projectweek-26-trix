@@ -3,11 +3,8 @@ import sys
 import os
 
 def game_over(screen):
-<<<<<<< HEAD
-=======
     # GEEN pygame.init() en GEEN set_mode() hier!
 
->>>>>>> 2a00415 (update)
     window_width, window_height = screen.get_size()
     pygame.display.set_caption("Game Over")
 

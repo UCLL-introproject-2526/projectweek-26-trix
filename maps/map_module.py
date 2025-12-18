@@ -4,23 +4,20 @@ import os
 from Character.samurai import Samurai
 from Character.warrior import Warrior
 
-
 # HEALTHBAR HELPERS
-
 def load_healthbar_frames():
     """
     Laadt healthbars:
     healthbar_0.png, healthbar_10.png, ..., healthbar_100.png
     """
-    base_dir = os.path.dirname(os.path.abspath(__file__))   # maps/
-    project_dir = os.path.dirname(base_dir)                 # project root
+    base_dir = os.path.dirname(os.path.abspath(__file__))  # maps/
+    project_dir = os.path.dirname(base_dir)                # project root
     hb_dir = os.path.join(project_dir, "healthbar")
 
     frames = {}
     for hp in range(0, 101, 10):
         path = os.path.join(hb_dir, f"healthbar_{hp}.png")
         frames[hp] = pygame.image.load(path).convert_alpha()
-
     return frames
 
 
@@ -31,32 +28,34 @@ def hp_to_key(hp):
 
 
 # MAP / GAME LOOP
-
-def generate_map(screen):
+def generatemapscreen(screen,
+                      player1_char="samurai",
+                      player2_char="warrior",
+                      selected_map="default"):
     """
     Returns:
-      - "menu"     : terug naar menu
-      - "restart"  : opnieuw starten
-      - "quit"     : afsluiten
+    - "menu"   : terug naar menu
+    - "restart": opnieuw starten
+    - "quit"   : afsluiten
     """
-
-<<<<<<< HEAD
-=======
     # GEEN pygame.init() hier!
     # GEEN pygame.display.set_mode() hier!
->>>>>>> 2a00415 (update)
-    pygame.display.set_caption("Warrior Hills")
 
+    pygame.display.set_caption("Warrior Hills")
     screen_width, screen_height = screen.get_size()
 
-<<<<<<< HEAD
-    # Background 
-=======
-    # Background (maak pad robuust)
->>>>>>> 2a00415 (update)
-    base_dir = os.path.dirname(os.path.abspath(__file__))   # maps/
-    project_dir = os.path.dirname(base_dir)                 # project root
-    bg_path = os.path.join(project_dir, "background.jpg")
+    # Background (maak pad robuust + gebruik selected_map)
+    base_dir = os.path.dirname(os.path.abspath(__file__))  # maps/
+    project_dir = os.path.dirname(base_dir)                # project root
+
+    if selected_map == "map1":
+        bg_file = "background1.jpg"
+    elif selected_map == "map2":
+        bg_file = "background2.jpg"
+    else:
+        bg_file = "background.jpg"
+
+    bg_path = os.path.join(project_dir, bg_file)
 
     try:
         background = pygame.image.load(bg_path).convert()
@@ -68,15 +67,22 @@ def generate_map(screen):
 
     clock = pygame.time.Clock()
 
-    # Players
-    samurai = Samurai(500, 420)
-    warrior = Warrior(100, 385)
+    # Players op basis van keuzes
+    if player1_char == "samurai":
+        player1 = Samurai(500, 420)
+    else:
+        player1 = Warrior(500, 385)
+
+    if player2_char == "samurai":
+        player2 = Samurai(100, 420)
+    else:
+        player2 = Warrior(100, 385)
 
     # HP setup
-    samurai.max_hp = 100
-    samurai.hp = 100
-    warrior.max_hp = 100
-    warrior.hp = 100
+    player1.max_hp = 100
+    player1.hp = 100
+    player2.max_hp = 100
+    player2.hp = 100
 
     # Load healthbars
     healthbar_images = load_healthbar_frames()
@@ -84,13 +90,10 @@ def generate_map(screen):
 
     running = True
     while running:
-
         # EVENTS
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
-
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return "menu"
@@ -98,67 +101,48 @@ def generate_map(screen):
         keys = pygame.key.get_pressed()
 
         # UPDATE
-
-        samurai.update(keys)
-        warrior.update(keys)
+        player1.update(keys)
+        player2.update(keys)
 
         # Borders
-        samurai.clamp_to_screen(screen_width)
-        warrior.clamp_to_screen(screen_width)
+        player1.clamp_to_screen(screen_width)
+        player2.clamp_to_screen(screen_width)
 
         # DAMAGE (10 PER HIT)
+        if player1.attack_hitbox and not player1.damage_applied:
+            if player1.attack_hitbox.colliderect(player2.hitbox):
+                player2.hp = max(0, player2.hp - 10)
+                player1.damage_applied = True
 
-        if samurai.attack_hitbox and not samurai.damage_applied:
-            if samurai.attack_hitbox.colliderect(warrior.hitbox):
-                warrior.hp = max(0, warrior.hp - 10)
-                samurai.damage_applied = True
-
-        if warrior.attack_hitbox and not warrior.damage_applied:
-            if warrior.attack_hitbox.colliderect(samurai.hitbox):
-                samurai.hp = max(0, samurai.hp - 10)
-                warrior.damage_applied = True
+        if player2.attack_hitbox and not player2.damage_applied:
+            if player2.attack_hitbox.colliderect(player1.hitbox):
+                player1.hp = max(0, player1.hp - 10)
+                player2.damage_applied = True
 
         # GAME OVER
-<<<<<<< HEAD
-=======
-        # -----------------
-        if samurai.hp <= 0 or warrior.hp <= 0:
+        if player1.hp <= 0 or player2.hp <= 0:
             from end_menu.game_over import game_over  # lazy import ok
             result = game_over(screen)  # moet "restart" of "quit" returnen
-
-            if result == "restart":
-                return "restart"
-            else:
-                return "quit"
->>>>>>> 2a00415 (update)
-
-        if samurai.hp <= 0 or warrior.hp <= 0:
-            from end_menu.game_over import game_over  # lazy import ok
-            result = game_over(screen)  # moet "restart" of "quit" returnen
-
             if result == "restart":
                 return "restart"
             else:
                 return "quit"
 
         # DRAW
-
         screen.blit(background, (0, 0))
-        samurai.draw(screen)
-        warrior.draw(screen)
+        player1.draw(screen)
+        player2.draw(screen)
 
         # HEALTHBAR OVERLAY
-        warrior_key = hp_to_key(warrior.hp)
-        samurai_key = hp_to_key(samurai.hp)
+        p2_key = hp_to_key(player2.hp)
+        p1_key = hp_to_key(player1.hp)
 
-        # Warrior: linksboven
+        # Player2: linksboven
+        screen.blit(healthbar_images[p2_key], (20, 20))
 
-        screen.blit(healthbar_images[warrior_key], (20, 20))
-
-        # Samurai: rechtsboven
-        
+        # Player1: rechtsboven
         screen.blit(
-            healthbar_images[samurai_key],
+            healthbar_images[p1_key],
             (screen_width - hb_width - 20, 20)
         )
 
