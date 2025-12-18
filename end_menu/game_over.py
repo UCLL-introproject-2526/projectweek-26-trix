@@ -25,15 +25,24 @@ def game_over(screen):
         background_image.fill(black)
 
 
-    info_font = pygame.font.SysFont("PixelOperator8", 40)
-    restart_surface = info_font.render("Press R to Restart", False, white)
-    restart_rect = restart_surface.get_rect(midtop=(window_width // 2, window_height // 2))
+    RESTART_SWORD_PATH = os.path.join(BASE_DIR, "assets", "images", "restart_sword.png")
+    QUIT_SWORD_PATH = os.path.join(BASE_DIR, "assets", "images", "quit_sword.png")
+    
+    try:
+        restart_surface = pygame.image.load(RESTART_SWORD_PATH).convert_alpha()
+        quit_surface = pygame.image.load(QUIT_SWORD_PATH).convert_alpha()
+    except Exception as e:
+        print(f"kon knoppen niet laden:", e)
+        return "quit"
+    
+    restart_rect = restart_surface.get_rect(
+        midtop=(window_width // 2, window_height // 2)
+    )
+    
+    quit_rect = quit_surface.get_rect(
+        midtop=(window_width // 2, window_height // 2 + 120)
+    )
 
-    quit_surface = info_font.render("Press Q to Quit", False, white)
-    quit_rect = quit_surface.get_rect(midtop=(window_width // 2, window_height // 2 + 60))
-
-    padding_x = 25
-    padding_y = 15
 
     clock = pygame.time.Clock()
 
@@ -50,13 +59,8 @@ def game_over(screen):
 
         screen.blit(background_image, (0, 0))
 
-        pygame.draw.rect(screen, white,
-                         (restart_rect.x - padding_x, restart_rect.y - padding_y,
-                          restart_rect.width + 2 * padding_x, restart_rect.height + 2 * padding_y), 2)
-        pygame.draw.rect(screen, white,
-                         (quit_rect.x - padding_x, quit_rect.y - padding_y,
-                          quit_rect.width + 2 * padding_x, quit_rect.height + 2 * padding_y), 2)
 
+        screen.blit(background_image, (0, 0))
         screen.blit(restart_surface, restart_rect)
         screen.blit(quit_surface, quit_rect)
 
