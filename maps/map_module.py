@@ -44,18 +44,19 @@ def generatemapscreen(screen,
     pygame.display.set_caption("Warrior Hills")
     screen_width, screen_height = screen.get_size()
 
-    # Background (maak pad robuust + gebruik selected_map)
-    base_dir = os.path.dirname(os.path.abspath(__file__))  # maps/
-    project_dir = os.path.dirname(base_dir)                # project root
+    # ---------- BACKGROUND KIEZEN UIT maps/assets ----------
+    base_dir = os.path.dirname(os.path.abspath(__file__))   # maps/
+    assets_dir = os.path.join(base_dir, "assets")           # maps/assets
 
     if selected_map == "map1":
-        bg_file = "background1.jpg"
+        bg_file = "samurai_map.png"              # jouw samurai map
     elif selected_map == "map2":
-        bg_file = "background2.jpg"
+        bg_file = "bergen.gif.gif"    
     else:
-        bg_file = "background.jpg"
+        bg_file = "background.jpg"               # standaard
 
-    bg_path = os.path.join(project_dir, bg_file)
+    bg_path = os.path.join(assets_dir, bg_file)
+    print("Background pad:", bg_path)  # debug, mag je later verwijderen
 
     try:
         background = pygame.image.load(bg_path).convert()
@@ -64,6 +65,7 @@ def generatemapscreen(screen,
         print("Warning: kon background niet laden:", bg_path, e)
         background = pygame.Surface((screen_width, screen_height))
         background.fill((0, 0, 0))
+    # ------------------------------------------------------
 
     clock = pygame.time.Clock()
 
