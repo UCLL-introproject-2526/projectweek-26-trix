@@ -80,11 +80,14 @@ def loadselectionscreen(screen):
     player2_char = "warrior"
     selected_map = "default"
 
-    # ---- MAP PREVIEW IMAGES LADEN ----
-    # project root = map boven main_menu
-    project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    bg1_path = os.path.join(project_dir, "background1.jpg")
-    bg2_path = os.path.join(project_dir, "background2.jpg")
+    # ---- MAP PREVIEW IMAGES LADEN UIT maps/assets ----
+    base_dir = os.path.dirname(os.path.abspath(__file__))   # main_menu/
+    project_dir = os.path.dirname(base_dir)                 # projectroot
+    maps_dir = os.path.join(project_dir, "maps")
+    assets_dir = os.path.join(maps_dir, "assets")
+
+    bg1_path = os.path.join(assets_dir, "samurai_map.jpg")           # map1
+    bg2_path = os.path.join(assets_dir, "factory-pixel-art-gif.jpg") # map2
 
     preview1 = None
     preview2 = None
@@ -98,7 +101,7 @@ def loadselectionscreen(screen):
             preview2 = pygame.transform.scale(preview2, (250, 100))
     except Exception as e:
         print("Kon map previews niet laden:", e)
-    # ----------------------------------
+    # --------------------------------------------------
 
     # Actions
     # character lists (label, key)
@@ -291,11 +294,9 @@ def loadselectionscreen(screen):
             e.draw(screen)
 
         # kleine previews naast de map-knoppen
-        # bij Map 1
-        if preview1:
+        if preview1:  # bij Map 1
             screen.blit(preview1, (screen_width // 2 - 130, 460))
-        # bij Map 2
-        if preview2:
+        if preview2:  # bij Map 2
             screen.blit(preview2, (screen_width // 2 - 130, 540))
 
         # toon geselecteerde characters onder de labels

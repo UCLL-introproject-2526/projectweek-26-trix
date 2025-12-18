@@ -41,17 +41,19 @@ def generatemapscreen(screen,
     pygame.display.set_caption("Warrior Hills")
     screen_width, screen_height = screen.get_size()
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))  # maps/
-    project_dir = os.path.dirname(base_dir)                # project root
+    base_dir = os.path.dirname(os.path.abspath(__file__))   # .../maps
+    assets_dir = os.path.join(base_dir, "assets")           # .../maps/assets
 
     if selected_map == "map1":
-        bg_file = "background1.jpg"
+        bg_file = "samurai_map.png"              # of .jpg, precies zoals bestand heet
     elif selected_map == "map2":
-        bg_file = "background2.jpg"
+        bg_file = "bergen.gif.gif"                   # als het echt zo heet, zonder extra .gif
     else:
-        bg_file = "background.jpg"
+        bg_file = "background.jpg"               # standaard
 
-    bg_path = os.path.join(project_dir, bg_file)
+    bg_path = os.path.join(assets_dir, bg_file)
+    print("Background pad:", bg_path)
+  # debug, mag je later verwijderen
 
     try:
         background = pygame.image.load(bg_path).convert()
@@ -60,16 +62,23 @@ def generatemapscreen(screen,
         print("Warning: kon background niet laden:", bg_path, e)
         background = pygame.Surface((screen_width, screen_height))
         background.fill((0, 0, 0))
+    # ------------------------------------------------------
 
     clock = pygame.time.Clock()
 
     floor_hitbox_bottom = int(screen_height * 0.90)
 
+    # --- AANPASBAAR: zet players lager/hoger ---
+    # positief = lager (naar beneden), negatief = hoger
+    p1_y_offset = 110
+    p2_y_offset = 110
+    # ------------------------------------------
+
     p1_x = int(screen_width * 0.20)
     p2_x = int(screen_width * 0.80)
 
     if player1_char == "samurai":
-        p1_y = compute_spawn_y(Samurai, floor_hitbox_bottom, P1)
+        p1_y = compute_spawn_y(Samurai, floor_hitbox_bottom + p1_y_offset, P1)
         player1 = Samurai(p1_x, p1_y, P1)
     elif player1_char == "warrior":
         p1_y = compute_spawn_y(Warrior, floor_hitbox_bottom, P1)
@@ -88,7 +97,7 @@ def generatemapscreen(screen,
         player2 = MartialHero2(p2_x, p2_y, P2)
 
     if player2_char == "samurai":
-        p2_y = compute_spawn_y(Samurai, floor_hitbox_bottom, P2)
+        p2_y = compute_spawn_y(Samurai, floor_hitbox_bottom + p2_y_offset, P2)
         player2 = Samurai(p2_x, p2_y, P2)
     elif player2_char == "warrior":
         p2_y = compute_spawn_y(Warrior, floor_hitbox_bottom, P2)
