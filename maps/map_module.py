@@ -40,11 +40,20 @@ def generate_map(screen):
       - "quit"     : afsluiten
     """
 
+<<<<<<< HEAD
+=======
+    # GEEN pygame.init() hier!
+    # GEEN pygame.display.set_mode() hier!
+>>>>>>> 2a00415 (update)
     pygame.display.set_caption("Warrior Hills")
 
     screen_width, screen_height = screen.get_size()
 
+<<<<<<< HEAD
     # Background 
+=======
+    # Background (maak pad robuust)
+>>>>>>> 2a00415 (update)
     base_dir = os.path.dirname(os.path.abspath(__file__))   # maps/
     project_dir = os.path.dirname(base_dir)                 # project root
     bg_path = os.path.join(project_dir, "background.jpg")
@@ -110,6 +119,18 @@ def generate_map(screen):
                 warrior.damage_applied = True
 
         # GAME OVER
+<<<<<<< HEAD
+=======
+        # -----------------
+        if samurai.hp <= 0 or warrior.hp <= 0:
+            from end_menu.game_over import game_over  # lazy import ok
+            result = game_over(screen)  # moet "restart" of "quit" returnen
+
+            if result == "restart":
+                return "restart"
+            else:
+                return "quit"
+>>>>>>> 2a00415 (update)
 
         if samurai.hp <= 0 or warrior.hp <= 0:
             from end_menu.game_over import game_over  # lazy import ok
