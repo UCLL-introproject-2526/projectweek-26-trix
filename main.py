@@ -5,7 +5,7 @@ from main_menu.menu import load_menu
 from main_menu.selection import loadselectionscreen
 
 def ensure_screen(screen):
-    # Als display gequit is: opnieuw initialiseren + fullscreen opnieuw zetten
+    # zorgt voor de fullscreen op alle schermen
     if not pygame.display.get_init():
         pygame.display.init()
     if screen is None or not pygame.display.get_surface():

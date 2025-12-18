@@ -6,7 +6,7 @@ WHITE = (255, 255, 255)
 DARKBLUE = (149, 219, 242)
 LIGHTBLUE = (71, 192, 232)
 SELECT_GREEN = (38, 166, 91)
-RED_TEXT = (160, 20, 20)   # 🔴 zwaard-tekst
+RED_TEXT = (160, 20, 20)   
 TITLECOLOR = (255, 255, 255)
 FPS = 60
 
@@ -59,12 +59,12 @@ def loadselectionscreen(screen):
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # 🗡️ Zwaard button
+    # Zwaard button
     sword_path = os.path.join(base_dir, "sword_button.png")
     sword_img = pygame.image.load(sword_path).convert_alpha()
     sword_img = pygame.transform.scale(sword_img, (360, 80))
 
-    # 🌄 Achtergrond image
+    # Achtergrond image
     bg_path = os.path.join(base_dir, "selection_background.png")
     background = pygame.image.load(bg_path).convert()
     background = pygame.transform.scale(background, (screen_width, screen_height))

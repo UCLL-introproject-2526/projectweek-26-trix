@@ -2,7 +2,7 @@ import pygame
 from animation import Animation
 from utility import load_images
 
-SCALE = 5.0
+SCALE = 4.2
 
 BASE_HBX, BASE_HBY, BASE_HBW, BASE_HBH = 54, 47, 45, 60
 BASE_SWORD_X = 53
@@ -148,7 +148,7 @@ class Warrior:
             self.attack_hitbox = pygame.Rect(self.rect.right - sword_x, sword_y, sword_w, sword_h)
         else:
             self.attack_hitbox = pygame.Rect(self.rect.left - sword_w + sword_x, sword_y, sword_w, sword_h)
-    #hoe ver je kan van het scherm gaan
+    #hoe ver je kan van het scherm gaan tot aan de border
     def clamp_to_screen(self, screen_width):
         margin = int(65 * SCALE)
 

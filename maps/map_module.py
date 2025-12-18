@@ -4,11 +4,6 @@ import os
 from controls import P1, P2
 from Character.samurai import Samurai
 from Character.warrior import Warrior
-from Character.huntress import Huntress
-from Character.king import King
-from Character.martial_hero import MartialHero
-from Character.martial_hero2 import MartialHero2
-
     # paths
 def load_healthbar_frames():
     base_dir = os.path.dirname(os.path.abspath(__file__))  
@@ -80,7 +75,7 @@ def generatemapscreen(screen,
 
     # zet players lager/hoger ---
     p1_y_offset = 120
-    p2_y_offset = 160
+    p2_y_offset = 130
     # begin positie van speler
     p1_x = int(screen_width * 0.10)
     p2_x = int(screen_width * 0.80)
@@ -98,7 +93,6 @@ def generatemapscreen(screen,
     elif player2_char == "warrior":
         p2_y = compute_spawn_y(Warrior, floor_hitbox_bottom + p2_y_offset, P2)
         player2 = instantiate_player(Warrior, p2_x, p2_y, P2)
-    
     player1.max_hp = 100
     player1.hp = 100
     player2.max_hp = 100

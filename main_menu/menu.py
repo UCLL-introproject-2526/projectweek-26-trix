@@ -174,7 +174,7 @@ def load_menu(screen):
 
     ui_elements = [title, play_button, quit_button]
 
-    # ---------------- MAIN LOOP ----------------
+    # MAIN LOOP
     while running:
         mouse_pos = pygame.mouse.get_pos()
         mouse_pressed = pygame.mouse.get_pressed()
