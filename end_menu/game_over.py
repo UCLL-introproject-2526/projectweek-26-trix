@@ -1,50 +1,91 @@
 import pygame
-import sys
 import os
+import pygame.freetype
 
-def game_over(screen):
-    window_width, window_height = screen.get_size()
-    pygame.display.set_caption("Game Over")
 
-    black = (0, 0, 0)
-    white = (255, 255, 255)
-    dark_blue = (149, 219, 242)
+def _scale_to_height(img, target_h):
+    scale = target_h / img.get_height()
+    return pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
 
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    PROJECT_DIR = os.path.dirname(BASE_DIR)
-    IMAGE_PATH = os.path.join(BASE_DIR, "assets", "images", "game_over_screen.png")
+
+def _load_frames(images_dir, prefix, count=10):
+    frames = []
+    for i in range(count):
+        path = os.path.join(images_dir, f"{prefix}_{i}.png")
+        if os.path.exists(path):
+            frames.append(pygame.image.load(path).convert_alpha())
+    return frames
+
+
+def game_over(screen, winner_player=1, winner_char=None, winner_image=None):
+    w, h = screen.get_size()
+    pygame.display.set_caption("Victory")
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))   # end_menu/
+    images_dir = os.path.join(base_dir, "assets", "images")
+
+    winner_char = (winner_char or "").lower().strip()
+
+    bg_path = os.path.join(images_dir, "selection_background.png")
+    try:
+        background = pygame.image.load(bg_path).convert()
+        background = pygame.transform.scale(background, (w, h))
+    except Exception:
+        background = pygame.Surface((w, h))
+        background.fill((0, 0, 0))
+
+    restart_path = os.path.join(images_dir, "restart_sword.png")
+    quit_path = os.path.join(images_dir, "quit_sword.png")
 
     try:
-        background_image = pygame.image.load(IMAGE_PATH).convert()
-        background_image = pygame.transform.scale(background_image, (window_width, window_height))
+        restart_surface = pygame.image.load(restart_path).convert_alpha()
+        quit_surface = pygame.image.load(quit_path).convert_alpha()
     except Exception as e:
-        print(f"kon achtergrond niet laden {IMAGE_PATH}:", e)
-        background_image = pygame.Surface((window_width, window_height))
-        background_image.fill(black)
-
-
-    RESTART_SWORD_PATH = os.path.join(BASE_DIR, "assets", "images", "restart_sword.png")
-    QUIT_SWORD_PATH = os.path.join(BASE_DIR, "assets", "images", "quit_sword.png")
-    
-    try:
-        restart_surface = pygame.image.load(RESTART_SWORD_PATH).convert_alpha()
-        quit_surface = pygame.image.load(QUIT_SWORD_PATH).convert_alpha()
-    except Exception as e:
-        print(f"kon knoppen niet laden:", e)
+        print("kon knoppen niet laden:", e)
         return "quit"
-    
-    restart_rect = restart_surface.get_rect(
-        midtop=(window_width // 2, window_height // 2)
-    )
-    
-    quit_rect = quit_surface.get_rect(
-        midtop=(window_width // 2, window_height // 2 + 120)
-    )
 
+    restart_rect = restart_surface.get_rect(midtop=(w // 2, int(h * 0.68)))
+    quit_rect = quit_surface.get_rect(midtop=(w // 2, int(h * 0.68) + 120))
+
+    font = pygame.freetype.SysFont("PixelOperator8", max(30, int(h * 0.08)), bold=True)
+    title_text = f"PLAYER {winner_player} VICTORY"
+    title_surf, _ = font.render(title_text, fgcolor=(255, 215, 0))
+    title_rect = title_surf.get_rect(center=(w // 2, int(h * 0.18)))
+
+    target_h = int(h * 0.30)
+
+    anim_frames = []
+    if winner_char == "samurai":
+        anim_frames = _load_frames(images_dir, "samurai", 10)
+    elif winner_char == "warrior":
+        anim_frames = _load_frames(images_dir, "warrior", 10)
+
+    if anim_frames:
+        anim_frames = [_scale_to_height(f, target_h) for f in anim_frames]
+
+    champ = None
+    if anim_frames:
+        champ = anim_frames[0]
+    elif winner_image is not None:
+        try:
+            champ = _scale_to_height(winner_image, target_h)
+        except Exception:
+            champ = None
+
+    if champ is None:
+        champ = pygame.Surface((int(w * 0.18), int(h * 0.28)), pygame.SRCALPHA)
+        champ.fill((255, 0, 0, 120))
+
+    champ_rect = champ.get_rect(center=(w // 2, int(h * 0.42)))
 
     clock = pygame.time.Clock()
+    frame_i = 0
+    frame_timer = 0.0
+    frame_time = 0.09
 
     while True:
+        dt = clock.tick(60) / 1000.0
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
@@ -55,12 +96,24 @@ def game_over(screen):
                 if event.key == pygame.K_a:
                     return "quit"
 
-        screen.blit(background_image, (0, 0))
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if restart_rect.collidepoint(event.pos):
+                    return "restart"
+                if quit_rect.collidepoint(event.pos):
+                    return "quit"
+        # mannetje laten zien in eind scherm als winnaar
+        if anim_frames:
+            frame_timer += dt
+            if frame_timer >= frame_time:
+                frame_timer = 0.0
+                frame_i = (frame_i + 1) % len(anim_frames)
+            champ = anim_frames[frame_i]
+            champ_rect = champ.get_rect(center=(w // 2, int(h * 0.42)))
 
-
-        screen.blit(background_image, (0, 0))
+        screen.blit(background, (0, 0))
+        screen.blit(title_surf, title_rect)
+        screen.blit(champ, champ_rect)
         screen.blit(restart_surface, restart_rect)
         screen.blit(quit_surface, quit_rect)
 
         pygame.display.flip()
-        clock.tick(60)

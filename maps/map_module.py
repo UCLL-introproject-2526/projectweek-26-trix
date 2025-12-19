@@ -4,10 +4,11 @@ import os
 from controls import P1, P2
 from Character.samurai import Samurai
 from Character.warrior import Warrior
-    # paths
+
+
 def load_healthbar_frames():
-    base_dir = os.path.dirname(os.path.abspath(__file__))  
-    project_dir = os.path.dirname(base_dir)                
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    project_dir = os.path.dirname(base_dir)
     hb_dir = os.path.join(project_dir, "healthbar")
 
     frames = {}
@@ -34,11 +35,11 @@ def compute_spawn_y(PlayerClass, desired_hitbox_bottom_y, controls):
 
 
 def instantiate_player(PlayerClass, x, y, controls):
-    """Instantiate PlayerClass with or without controls depending on signature."""
     try:
         return PlayerClass(x, y, controls)
     except TypeError:
         return PlayerClass(x, y)
+
 
 def generatemapscreen(screen,
                       player1_char="samurai",
@@ -47,7 +48,6 @@ def generatemapscreen(screen,
     pygame.display.set_caption("Warrior Hills")
     screen_width, screen_height = screen.get_size()
 
-    # paths
     base_dir = os.path.dirname(os.path.abspath(__file__))
     assets_dir = os.path.join(base_dir, "assets")
 
@@ -59,7 +59,6 @@ def generatemapscreen(screen,
         bg_file = "background.jpg"
 
     bg_path = os.path.join(assets_dir, bg_file)
-    print("Background pad:", bg_path)
 
     try:
         background = pygame.image.load(bg_path).convert()
@@ -71,29 +70,23 @@ def generatemapscreen(screen,
 
     clock = pygame.time.Clock()
 
-    # VASTE grondlijn: altijd X pixels boven de onderkant van het scherm
     GROUND_MARGIN = 40
     floor_hitbox_bottom = screen_height - GROUND_MARGIN
 
-    # (optioneel) mini correcties per character als één sprite "visueel" net zakt.
-    # Begin met 0. Als nodig: samurai bv -6 of -10.
     FOOT_OFFSETS = {
         "samurai": 0,
         "warrior": 30,
     }
 
-    # begin positie van speler
     p1_x = int(screen_width * 0.10)
     p2_x = int(screen_width * 0.80)
 
-    # helper om class te kiezen
     def get_class(name):
         return Samurai if name == "samurai" else Warrior
 
     P1Class = get_class(player1_char)
     P2Class = get_class(player2_char)
 
-    # y - positie (= grondlijn)
     p1_y = compute_spawn_y(P1Class, floor_hitbox_bottom + FOOT_OFFSETS[player1_char], P1)
     player1 = instantiate_player(P1Class, p1_x, p1_y, P1)
 
@@ -113,9 +106,8 @@ def generatemapscreen(screen,
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    return "menu"
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return "menu"
 
         keys = pygame.key.get_pressed()
 
@@ -137,16 +129,30 @@ def generatemapscreen(screen,
 
         if player1.hp <= 0 or player2.hp <= 0:
             from end_menu.game_over import game_over
-            result = game_over(screen)
+
+            if player2.hp <= 0:
+                result = game_over(
+                    screen,
+                    winner_player=1,
+                    winner_char=player1_char,
+                    winner_image=player1.image
+                )
+            else:
+                result = game_over(
+                    screen,
+                    winner_player=2,
+                    winner_char=player2_char,
+                    winner_image=player2.image
+                )
+
             return "restart" if result == "restart" else "quit"
 
         screen.blit(background, (0, 0))
         player1.draw(screen)
         player2.draw(screen)
 
-        # healthbar hoort bij welke speler
-        p2_key = hp_to_key(player2.hp)
         p1_key = hp_to_key(player1.hp)
+        p2_key = hp_to_key(player2.hp)
 
         screen.blit(healthbar_images[p1_key], (20, 20))
         screen.blit(healthbar_images[p2_key], (screen_width - hb_width - 20, 20))
